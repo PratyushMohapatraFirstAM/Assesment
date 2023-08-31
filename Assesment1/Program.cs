@@ -21,6 +21,8 @@ namespace Proj1_SampleConApp.Week_2
         public string ProductName { get; set; }
         public double ProductPrice { get; set; }
         public int CategoryId { get; set; }
+
+        public int ProductStocks { get; set; }
     }
     class Program
     {
@@ -42,7 +44,8 @@ namespace Proj1_SampleConApp.Week_2
                         ProductId = Convert.ToInt32(reader[0]),
                         ProductName = reader[1].ToString(),
                         ProductPrice = Convert.ToDouble(reader[2]),
-                        CategoryId = Convert.IsDBNull(reader[3]) ? 1 : Convert.ToInt32(reader[3])
+                        CategoryId = Convert.IsDBNull(reader[3]) ? 1 : Convert.ToInt32(reader[3]),
+                        ProductStocks=Convert.ToInt32(reader[4])
                     };
                     records.Add(prod);
                 }
@@ -70,7 +73,7 @@ namespace Proj1_SampleConApp.Week_2
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Console.WriteLine($"ProductName : {reader["ProductName"]}   ProductPrice: {reader["ProductPrice"]}");
+                    Console.WriteLine($"ProductName : {reader["ProductName"]}   ProductPrice: {reader["ProductPrice"]} ProductStocks : {reader["ProductStocks"]}");
                 }
             }
             catch (Exception ex)
@@ -108,7 +111,8 @@ namespace Proj1_SampleConApp.Week_2
                             string name = Utilities.GetString("enter the product to be inserted in warehouse: ");
                             int price = Utilities.GetInteger("enter the price of the product i.e to be inserted in warehouse: ");
                             int category = Utilities.GetInteger("enter the cateogry type {1-electronics, 2-food, 3-clothes, or 4-beverages}");
-                            insertProductToRecord(name, price, category);
+                            int stocks = Utilities.GetInteger("enter the stocks of the product: ");
+                            insertProductToRecord(name, price, category, stocks);
                             List<ProductData> productlist = getAllProducts();
                             foreach (var product in productlist)
                             {
@@ -121,8 +125,9 @@ namespace Proj1_SampleConApp.Week_2
                             string name = Utilities.GetString("enter the name of the product to be updated");
                             double price = Utilities.GetDouble("enter the price of the product to be updated");
                             int categoryid = Utilities.GetInteger("enter the category of the product to be updated i,e 1-electronics, 2-food, 3-clothes, or 4-beverages");
+                            int stocks = Utilities.GetInteger("enter the stocks of the product to be updated: ");
 
-                            ProductData productup = new ProductData { ProductId = id, ProductName = name, ProductPrice = price, CategoryId = categoryid };
+                            ProductData productup = new ProductData { ProductId = id, ProductName = name, ProductPrice = price, CategoryId = categoryid, ProductStocks=stocks };
                             List<ProductData> productlist = getAllProducts();
                             foreach (var product in productlist)
                                 if (product.ProductId == id)
@@ -190,7 +195,7 @@ namespace Proj1_SampleConApp.Week_2
         }
         private static void updateProductToRecord(int id, ProductData product)
         {
-            string query = $"update ProductTable set ProductName = '{product.ProductName}',ProductPrice={product.ProductPrice},CategoryId ={product.CategoryId} where ProductId ={id}";
+            string query = $"update ProductTable set ProductName = '{product.ProductName}',ProductPrice={product.ProductPrice},CategoryId ={product.CategoryId},ProductStocks={product.ProductStocks} where ProductId ={id}";
             SqlConnection con = new SqlConnection(STRCONNECTION);
             SqlCommand cmd = new SqlCommand(query, con);
             try
@@ -205,9 +210,9 @@ namespace Proj1_SampleConApp.Week_2
                 Console.WriteLine(ex.Message);
             }
         }
-        private static void insertProductToRecord(string name, double price, int category)
+        private static void insertProductToRecord(string name, double price, int category, int stocks)
         {
-            string query = $"insert into ProductTable values('{name}',{price},{category})";
+            string query = $"insert into ProductTable values('{name}',{price},{category},{stocks})";
             SqlConnection con = new SqlConnection(STRCONNECTION);
             SqlCommand cmd = new SqlCommand(query, con);
             try
